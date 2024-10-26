@@ -37,7 +37,7 @@ def add_if_logtxt_noex(log_text, string_val):
 
 
 #Delete all JW Library saves from USB
-def delete_jwlib_saves_from_usb(usb_dir, excl_usb_dirs):
+def del_jwlib_saves_from_usb(usb_dir, excl_usb_dirs):
     
     #Variables - regexp for jwlibrary saves
     jwlib_save_regexp = re.compile('UserdataBackup.*.jwlibrary')

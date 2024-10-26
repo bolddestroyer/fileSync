@@ -24,14 +24,14 @@ stat_nonex_insrc = 0      #USB files that do not exist in Dropbox or VSC
 
 ##############################
 #Synchronization process for Dropbox, Virtual Studio Code files and USB
-def fileSynchronizer_db_usb_vsc_sync():
+def fileSync_db_usb_vsc_sync():
 
     #Global variables
     global log_txt_new_files, log_txt_replaced_files, log_txt_proc_res, log_txt_nonex_insrc, log_txt_nonex_excldir, stat_total_files, stat_new_files, stat_replaced_files, stat_unchanged_files, stat_nonex_insrc
 
     print('Processing...')      #Message displayed in the console, indicating that processing has started
 
-    delete_jwlib_saves_from_usb(usb_dir, excl_usb_dirs)     #From 'fileSynchronizer_modules': delete all JW Library saves from USB
+    del_jwlib_saves_from_usb(usb_dir, excl_usb_dirs)     #From 'modules': delete all JW Library saves from USB
 
     #Main 'try-catch' statement
     try:
@@ -153,7 +153,7 @@ def fileSynchronizer_db_usb_vsc_sync():
 
 ##############################
 #Analysis of Dropbox, Virtual Studio Code and USB files, with no synchronization
-def fileSynchronizer_db_usb_vsc_anal():
+def fileSync_db_usb_vsc_anal():
 
     #Global variables
     global log_txt_new_files, log_txt_replaced_files, log_txt_proc_res, log_txt_nonex_insrc, log_txt_nonex_excldir, stat_total_files, stat_new_files, stat_replaced_files, stat_unchanged_files, stat_nonex_insrc
@@ -269,17 +269,17 @@ def fileSynchronizer_db_usb_vsc_anal():
 
 ##############################
 #Main window, allows selecting between sychronization and analysis
-def fileSynchronizer_window():
+def fileSync_window():
     window = tkinter.Tk()
     window.title("FileSynchronizer")
 
     lbl_main = tkinter.Label(window, text="Select an option")
     lbl_main.grid(row=0, column=0, padx=10, pady=10)
 
-    btn_db_usb_vsc_sync = tkinter.Button(window, text="Run sychronization between Dropbox, VSC and USB", command=lambda: fileSynchronizer_db_usb_vsc_sync())
+    btn_db_usb_vsc_sync = tkinter.Button(window, text="Run sychronization between Dropbox, VSC and USB", command=lambda: fileSync_db_usb_vsc_sync())
     btn_db_usb_vsc_sync.grid(row=1, column=0, padx=10, pady=10)
 
-    btn_db_usb_vsc_anal = tkinter.Button(window, text="Run analysis between Dropbox, VSC and USB", command=lambda: fileSynchronizer_db_usb_vsc_anal())
+    btn_db_usb_vsc_anal = tkinter.Button(window, text="Run analysis between Dropbox, VSC and USB", command=lambda: fileSync_db_usb_vsc_anal())
     btn_db_usb_vsc_anal.grid(row=2, column=0, padx=10, pady=10)
 
     #Display the message box in the middle of the screen
