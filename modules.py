@@ -1,5 +1,3 @@
-#File with modules for the fileSynchronizer_main
-import csv
 import os
 import re
 from datetime import *
@@ -8,96 +6,66 @@ import sys
 import tkinter
 
 
-#Read excluded directories out of a CSV-file and pack them into a list
-def read_csv_excl_dirs(csv_file_dir):
+#If a string does not already exist in the log_lbl, add it to the log_lbl
+def add_if_logtxt_noex(log_lbl, string_val):
+    if string_val not in log_lbl:
+        log_lbl += f'{string_val}\n'
+    return log_lbl
+
+
+#Delete all JW Library saves from target
+def remove_jwlib_saves_from_usb(dir_trg):
     
-    #Variables - list of excluded directories from the CSV-file
-    excl_dirs = []
+    jwlibsave_regexp = re.compile('UserdataBackup.*.jwlibrary')
 
-    #Read the CSV-file
-    with open(csv_file_dir, newline='', encoding='utf-8') as csv_file:
-        file_excl_dirs = csv.reader(csv_file)       #Read all entries from the file, create a reader object
-        next(file_excl_dirs, None)      #Skip the 1st line of the CSV-file
-        #Iterate through all entries of the entries from the CSV-file
-        for row in file_excl_dirs:
-            excl_dirs.append(row[0])
-   
-    #Return the list of excluded directories
-    return excl_dirs
-
-
-#If a string does not already exist in the log_text, add it to the log_text
-def add_if_logtxt_noex(log_text, string_val):
-    
-    #If the new log_text is not already present in the log_text string, add it
-    if string_val not in log_text:
-        log_text += f'{string_val}\n'
-    
-    return log_text
-
-
-#Delete all JW Library saves from USB
-def del_jwlib_saves_from_usb(usb_dir, excl_usb_dirs):
-    
-    #Variables - regexp for jwlibrary saves
-    jwlib_save_regexp = re.compile('UserdataBackup.*.jwlibrary')
-
-    #Loop: iterate through all directories, subdirectories (list) and files (list) from USB
-    for dir_usb, sub_dirs_usb, files_usb in os.walk(usb_dir):
-        #Iterate through the list of files from the USB directory
-        for file_usb in files_usb:
-            #If a USB file is a JWLibrary save and is not excluded
-            if jwlib_save_regexp.search(file_usb) and dir_usb not in excl_usb_dirs:
-                os.remove(os.path.join(dir_usb, file_usb))
+    #Iterate through all directories, subdirectories (list) and files (list) from target
+    for dir_trg_dirs, dir_trg_subdir, dir_trg_files in os.walk(dir_trg):
+        #Iterate through the list of target files
+        for dir_trg_file in dir_trg_files:
+            #Remove if files file is a JWLibrary save
+            if jwlibsave_regexp.search(dir_trg_file):
+                print(os.path.join(dir_trg, dir_trg_dirs, dir_trg_file))
+                os.remove(os.path.join(dir_trg, dir_trg_dirs, dir_trg_file))
 
 
 #Log file
-def log_file(dropbox_dir, vsc_dir, usb_dir, log_txt_proc_res, stat_total_files, stat_unchanged_files, stat_new_files, log_txt_new_files, stat_replaced_files, log_txt_replaced_files, log_txt_nonex_excldir, stat_nonex_insrc, log_txt_nonex_insrc, log_file_dir, log_file_rundate):
-    #Composition of the log file
-    with open(log_file_dir, 'w', encoding='utf-8') as log_file:
-        log_file.write('\n-----------------------------THE FILE SYNCHRONIZER------------------------------\n\n')
-        log_file.write(f'Dropbox directory: {dropbox_dir}\n')
-        log_file.write(f'VSC directory: {vsc_dir}\n')
-        log_file.write(f'USB directory: {usb_dir}\n')
-        log_file.write('\n--------------------------------------------------------------------------------\n')
-        log_file.write(f'Synchronization run on {log_file_rundate}\n')
-        log_file.write(f'Result of the synchronization: {log_txt_proc_res}\n')
+def log_file(dir_src, dir_trg, log_lbl_processResult, stat_totalFiles, stat_unchangedFiles, stat_newFiles, log_lbl_newFiles, stat_replacedFiles, log_lbl_replacedFiles, stat_nonExistInSrc, log_lbl_nonExistInSrc, log_dir, log_rundate):
+
+    with open(log_dir, 'w', encoding='utf-8') as log_file:
+        log_file.write('-----------------------------THE FILE SYNCHRONIZER------------------------------\n')
+        log_file.write(f'Source directory: {dir_src}\n')
+        log_file.write(f'Target directory: {dir_trg}\n')
+        log_file.write(f'Synchronization run on {log_rundate}\n')
+        log_file.write(f'Result: {log_lbl_processResult}\n')
         log_file.write(f'\n-----------------------------------STATISTICS-----------------------------------\n')
-        log_file.write(f'Total number of files: {stat_total_files}\n')
-        log_file.write(f'Unchanged files: {stat_unchanged_files}\n\n')
-        log_file.write(f'New files: {stat_new_files}\n')
-        log_file.write(log_txt_new_files)
-        log_file.write(f'\nReplaced files: {stat_replaced_files}\n')
-        log_file.write(log_txt_replaced_files)
-        
+        log_file.write(f'Total number of files: {stat_totalFiles}\n')
+        log_file.write(f'Unchanged files: {stat_unchangedFiles}\n\n')
+        log_file.write(f'New files: {stat_newFiles}\n')
+        log_file.write(log_lbl_newFiles)
+        log_file.write(f'\nReplaced files: {stat_replacedFiles}\n')
+        log_file.write(log_lbl_replacedFiles)        
         log_file.write('\n------------------------OTHER SOURCE DESTINATION ANALYSIS------------------------\n')
-
-        if log_txt_nonex_excldir != "":
-            log_file.write(f'Non-existing excluded directories:\n{log_txt_nonex_excldir}')
+        if stat_nonExistInSrc != 0:
+            log_file.write(f'Files from target missing in source: {stat_nonExistInSrc}\n')
+            log_file.write(log_lbl_nonExistInSrc)
         else:
-            log_file.write(f'Non-existing excluded directories: None\n')
-
-        if stat_nonex_insrc != 0:
-            log_file.write(f'\nFiles missing in Dropbox and VSC: {stat_nonex_insrc}\n')
-            log_file.write(log_txt_nonex_insrc)
-        else:
-            log_file.write(f'\nFiles missing in Dropbox and VSC: None')
+            log_file.write(f'Files missing in source: None')
 
 
-def open_log_file(log_file_dir):
-    subprocess.Popen([r"C:\Program Files\Notepad++\notepad++.exe", log_file_dir], shell=True)
+def open_log_file(log_dir):
+    subprocess.Popen([r"C:\Program Files\Notepad++\notepad++.exe", log_dir], shell=True)
 
 
 #Custom message box with buttons to close and open the log file
-def custom_messagebox(log_file_dir, log_txt_proc_res, log_file_rundate):
+def custom_messagebox(log_dir, log_lbl_processResult, log_rundate):
     #Top-level pop-up window
     msg_box = tkinter.Tk()
     msg_box.title('fileSynchronizer processing info')
     
     #Labels
-    lbl_status = tkinter.Label(msg_box, text=log_txt_proc_res)
+    lbl_status = tkinter.Label(msg_box, text=log_lbl_processResult)
     lbl_status.grid(row=0, column=0, columnspan=2)
-    lbl_runtime = tkinter.Label(msg_box, text=f'Synchronization run on {log_file_rundate}')
+    lbl_runtime = tkinter.Label(msg_box, text=f'Synchronization run on {log_rundate}')
     lbl_runtime.grid(row=1, column=0, columnspan=2)
 
     #Button - close the message box and end the process
@@ -106,7 +74,7 @@ def custom_messagebox(log_file_dir, log_txt_proc_res, log_file_rundate):
     
     #Button - open the log file
     #Open the log file (subprocess - interact with OS and launch external process; Popen - create a new process; shell=True - run through cmd)
-    btn_open_log = tkinter.Button(msg_box, text="Open the log file", command=lambda: [open_log_file(log_file_dir), sys.exit()])
+    btn_open_log = tkinter.Button(msg_box, text="Open the log file", command=lambda: [open_log_file(log_dir), sys.exit()])
     btn_open_log.grid(row=2, column=1, padx=10, pady=10)
 
     #Display the message box in the middle of the screen
