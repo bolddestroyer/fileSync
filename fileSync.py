@@ -1,4 +1,4 @@
-from main import *
+from main import app_window
 
 if __name__ == "__main__":
-    fileSync_window()
+    app_window()

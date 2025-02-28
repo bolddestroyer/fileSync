@@ -1,4 +1,3 @@
-.git
 __pycache__
-input_files
-fileSync_variables.py
+config_creator_variables.json
+creator_variables_excluded.py
