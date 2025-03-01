@@ -34,10 +34,7 @@ def custom_messagebox(
         btn_open_log_file = tkinter.Button(
             window,
             text="Open the log file",
-            command=lambda: [
-                subprocess.Popen([r"C:\Program Files\Notepad++\notepad++.exe", log_file_directory]),
-                sys.exit(),
-            ],
+            command=lambda: [subprocess.Popen(["start", log_file_directory], shell=True), sys.exit()],
         )
         btn_open_log_file.grid(row=4, column=1, padx=10, pady=10)
 

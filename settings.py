@@ -18,13 +18,9 @@ def center_window(window):
         print(f"Error (method: center_window): {e}")
 
 
-def set_window_size(window, fraction=5):
+def set_window_size(window):
     try:
         window.update_idletasks()
-        screen_width = window.winfo_screenwidth()
-        screen_height = window.winfo_screenheight()
-        window_width = screen_width // fraction
-        window_height = screen_height // fraction
-        window.geometry(f"{window_width}x{window_height}")
+        window.geometry(f"384x216")
     except Exception as e:
         print(f"Error (method: set_window_size): {e}")

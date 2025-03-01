@@ -5,10 +5,10 @@ from datetime import *
 import os
 import shutil
 import time
+import json
 from writeLog import *
 from customMessagebox import custom_messagebox
-from creator_variables_excluded import *
-import json
+from config_creator_variables import *
 
 
 def remove_jwlib_saves(target_directory):
@@ -21,13 +21,6 @@ def remove_jwlib_saves(target_directory):
 
 def sync_process_creator():
     start_time = time.time()
-
-    with open(
-        os.path.join(os.path.dirname(__file__), "config_creator_variables.json"), "r"
-    ) as config_creator_variables_file:
-        config = json.load(config_creator_variables_file)
-        source_directory = config["source_directory"]
-        target_directory = config["target_directory"]
 
     label_result = str()
     stat_files_total = 0
